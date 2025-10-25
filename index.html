@@ -122,6 +122,7 @@
             transition: all 0.2s;
             z-index: 30;
             font-size: 24px;
+            pointer-events: auto;
         }
 
         #soundToggle:active {
@@ -431,7 +432,7 @@
             <h1>Letters from Adam 💌</h1>
             <div class="message">
                 Halo, Sopipiaw! Ngahaha <br>
-                Adam punya 5 surat untuk kamu <br>
+                Adam beberapa 5 surat untuk kamu <br>
                 Ayo cari? 🗺️
             </div>
             <button class="btn" onclick="startGame()">Lessgooow</button>
@@ -486,15 +487,11 @@
             osc.stop(audioCtx.currentTime + duration);
         }
 
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('soundToggle').classList.toggle('muted');
-            play(soundEnabled ? 800 : 200, 0.1, 'square', 0.2);
-        }
-
         let bgmInterval;
         function startBGM() {
             if (!soundEnabled) return;
+            if (bgmInterval) return;
+
             const notes = [440, 554, 659, 880]; // A4, C#5, E5, A5
             let i = 0;
             bgmInterval = setInterval(() => {
@@ -502,6 +499,30 @@
                 play(notes[i % notes.length], 0.4, 'triangle', 0.15);
                 i++;
             }, 800);
+        }
+
+        function toggleSound() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            soundEnabled = !soundEnabled;
+            const toggleButton = document.getElementById('soundToggle');
+
+            if (soundEnabled) {
+                toggleButton.classList.remove('muted');
+                play(800, 0.1, 'square', 0.2);
+                if (gameState.running) {
+                    startBGM();
+                }
+            } else {
+                toggleButton.classList.add('muted');
+                play(200, 0.1, 'square', 0.2); // SFX untuk Mute
+                if (bgmInterval) {
+                    clearInterval(bgmInterval);
+                    bgmInterval = null;
+                }
+            }
         }
 
         // ====================== GAME STATE ======================
@@ -513,8 +534,8 @@
         const letterMessages = [
 
             {
-                title: "Awal Cerita Kita",
-                content: "Hai Sop,\n\nMasih inget ga waktu awal kita mulai ngobrol? Aku ga nyangka dari yang awalnya basa-basi doang, tiba-tiba kamu jadi my favorite person. 😆😜"
+                title: "Opppp",
+                content: "Masih inget ga pertama kali kita chat? Aku ga nyangka dari yang awalnya basa-basi doang, tiba-tiba kamu jadi my favorite person 😆😜"
             },
             {
                 title: "Gombal Dikit",
@@ -522,15 +543,15 @@
             },
             {
                 title: "Maaf",
-                content: "I’m not always the best at expressing how I feel. Kadang canggung, kadang aku salah ngomong. And sometimes I just... forget to say anything at all.\n\nMaaf aku sering ilang-ilangan. That doesn’t mean I don’t think about you. Aku tidak pernah lupa kamu dan aku akan selalu kembali. ❤️"
+                content: "I’m not always the best at expressing how I feel. Kadang canggung, kadang aku salah ngomong. And sometimes I just forget to say anything at all.\n\nMaaf aku sering ilang-ilangan. That doesn’t mean I don’t think about you. Aku tidak pernah lupa kamu dan aku akan selalu kembali ❤️"
             },
             {
                 title: "Random",
-                content: "Aku kira kamu polos, ternyata ahh lumayan mantavv ugha. 🤭 Tapi asli, kenapa kamu gemesin kali? 😤"
+                content: "Aku kira kamu polos, ternyata ahh lumayan mantavv ugha 🤭 Tapi asli, kenapa kamu gemesin kali? 😤"
             },
             {
                 title: "Terima Kasih",
-                content: "Thanks udah sabar sama aku, yang sering ilang ilangan, kadang aneh, kadang absurd, kadang ngelucu di waktu yang mungkin tidak tepat. 🙏"
+                content: "Thanks udah sabar sama aku, yang sering ilang ilangan, kadang aneh, kadang absurd, kadang ngelucu di waktu yang mungkin tidak tepat 🙏"
             }
 
         ];
@@ -590,42 +611,62 @@
             ctx.save();
             ctx.translate(x + w / 2, y + h / 2 + Math.sin(walkCycle) * 3);
 
-            // Body (light blue shirt/dress)
-            roundRect(-w / 2, -h / 2, w, h, 16, '#e0f7ff');
-
-            // Hair/Hat (brown for neutral/cute)
-            roundRect(-w / 2 - 5, -h / 2 - 25, w + 10, 30, 10, '#8b4513');
-
-            // Face
-            roundRect(-w / 2 + 8, -h / 2 + 10, w - 16, 25, 10, '#fff');
-
-            // Eyes
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-8 * facing, -5, 3.5, 0, Math.PI * 2);
-            ctx.arc(8 * facing, -5, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.ellipse(0, h / 2 + 5, w / 2 - 5, 8, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Blush (a softer pink)
+            const bodyGrad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+            bodyGrad.addColorStop(0, '#fff5f8');
+            bodyGrad.addColorStop(1, '#ffe0ed');
+            roundRect(-w / 2, -h / 2, w, h, 16, bodyGrad);
+
+            roundRect(-w / 2 + 5, -h / 2 - 20, 10, 25, 5, '#ffb6c1');
+            roundRect(w / 2 - 15, -h / 2 - 20, 10, 25, 5, '#ffb6c1');
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(-w / 2 + 7, -h / 2 - 15, 6, 12);
+            ctx.fillRect(w / 2 - 13, -h / 2 - 15, 6, 12);
+
+            roundRect(-w / 2 + 8, -h / 2 + 10, w - 16, 25, 10, '#fff');
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-8 * facing, -5, 4, 0, Math.PI * 2);
+            ctx.arc(8 * facing, -5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(-8 * facing - 1, -6, 1.5, 0, Math.PI * 2);
+            ctx.arc(8 * facing - 1, -6, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
             if (blush > 0) {
-                ctx.fillStyle = `rgba(255, 127, 80, ${blush})`; /* Using coral for blush */
+                ctx.fillStyle = `rgba(255, 105, 180, ${blush * 0.6})`;
                 ctx.beginPath();
-                ctx.arc(-12 * facing, 0, 7, 0, Math.PI * 2);
-                ctx.arc(12 * facing, 0, 7, 0, Math.PI * 2);
+                ctx.arc(-12 * facing, 0, 8, 0, Math.PI * 2);
+                ctx.arc(12 * facing, 0, 8, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            // Mouth (simple)
-            ctx.strokeStyle = coralColor;
+            ctx.strokeStyle = '#ff69b4';
             ctx.lineWidth = 2.5;
             ctx.beginPath();
-            ctx.arc(0, 6, 7, 0.15, Math.PI - 0.15);
+            ctx.arc(0, 6, 8, 0.2, Math.PI - 0.2);
             ctx.stroke();
 
-            // Arms (slightly different swing for a more dynamic walk)
+            ctx.fillStyle = '#ffb6c1';
+            ctx.beginPath();
+            ctx.arc(0, 2, 2, 0, Math.PI * 2);
+            ctx.fill();
+
             const swing = Math.sin(walkCycle) * 8;
-            roundRect(-w / 2 + 3, 4 + swing, 10, 10, 5, '#e0f7ff');
-            roundRect(w / 2 - 13, 4 - swing, 10, 10, 5, '#e0f7ff');
+            roundRect(-w / 2 + 3, 4 + swing, 10, 12, 5, '#fff0f5');
+            roundRect(w / 2 - 13, 4 - swing, 10, 12, 5, '#fff0f5');
+
+            ctx.fillStyle = '#ffb6c1';
+            ctx.beginPath();
+            ctx.ellipse(-8, h / 2 - 5, 6, 4, 0, 0, Math.PI * 2);
+            ctx.ellipse(8, h / 2 - 5, 6, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
 
             ctx.restore();
         }
@@ -797,7 +838,7 @@
                 I just wanted to make something special for you and put a smile on your face. And every word I wrote is true.<br>
                 </p>
                 <p style="font-size:24px; margin:20px 0; color:var(--accent-coral);">
-                Lobyuu ❤️</p>
+                Lobyuu, sop ❤️</p>
                 <p style="margin-top:16px; font-size:18px;">- Yours, Adam</p>
             `;
             document.getElementById('endScreen').style.display = 'flex';
@@ -874,7 +915,15 @@
                 gameState.running = true;
                 gameState.timeStart = Date.now();
                 initWorld();
-                startBGM();
+
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                if (soundEnabled) {
+                    startBGM();
+                }
+
                 showHint("Find all 5 letters! 💌", 3500);
                 gameLoop();
             }, 500);
