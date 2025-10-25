@@ -786,20 +786,32 @@
         }
 
         function collectLetter(letter) {
+            // Pastikan data pesan aman (Guard Clause)
+            if (!letter.message || !letter.message.title) {
+                letter.collected = true;
+                gameState.lettersCollected++;
+                return;
+            }
+
             letter.collected = true;
             gameState.lettersCollected++;
-            gameState.showDialogue = true;
+            gameState.showDialogue = true; // Block hints/movement
             document.getElementById('letterCount').textContent = gameState.lettersCollected;
             createHearts(letter.x, letter.y);
             player.blush = 1;
 
             const modal = document.getElementById('letterModal');
+
+
             document.getElementById('letterTitle').textContent = letter.message.title;
             document.getElementById('letterContent').textContent = letter.message.content;
-            modal.classList.add('active');
+
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 50);
 
             if (gameState.lettersCollected === gameState.totalLetters) {
-                gameState.isGameFinished = true;
+                gameState.isGameFinished = true; // Flag the game as ready to end
             }
         }
 
@@ -906,7 +918,7 @@
                     startBGM();
                 }
 
-                showHint("Find all 5 letters! 💌", 3500);
+                showHint("Temukan semua surat! 💌", 3500);
                 gameLoop();
             }, 500);
         }
@@ -980,7 +992,7 @@
                 // Check if tap is near the letter AND player is near the letter
                 const distLetter = Math.hypot(tx - l.x, ty - l.y);
                 const distPlayer = Math.hypot(player.x + player.w / 2 - l.x, player.y + player.h / 2 - l.y);
-                if (distLetter < 40 && distPlayer < 80) { // Tap radius 40, Player proximity 80
+                if (distLetter < 60 && distPlayer < 80) { // Tap radius 60, Player proximity 80
                     collectLetter(l);
                 }
             });
