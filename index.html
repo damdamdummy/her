@@ -787,7 +787,7 @@
         function collectLetter(letter) {
             letter.collected = true;
             gameState.lettersCollected++;
-            gameState.showDialogue = true; // Block hints/movement
+            gameState.showDialogue = true;
             document.getElementById('letterCount').textContent = gameState.lettersCollected;
             createHearts(letter.x, letter.y);
             player.blush = 1;
@@ -798,7 +798,7 @@
             modal.classList.add('active');
 
             if (gameState.lettersCollected === gameState.totalLetters) {
-                gameState.isGameFinished = true; // Flag the game as ready to end
+                gameState.isGameFinished = true;
             }
         }
 
