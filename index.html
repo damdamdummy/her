@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Dear Sophia 💘 </title>
+    <meta property="og:title" content="From Adam to Sophia 💌" />
+    <meta property="og:description" content="💞💞💞💞" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Press+Start+2P&family=Quicksand:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) e.preventDefault();
+            if (e.ctrlKey && (e.key === 'u' || e.key === 's')) e.preventDefault();
+            if (e.ctrlKey && e.key === 'c') e.preventDefault();
+        });
+        document.addEventListener('selectstart', e => e.preventDefault());
+        document.addEventListener('dragstart', e => e.preventDefault());
+    </script>
+    <style>
+        :root {
+            --accent-coral: #ff7f50;
+            --soft-blue: #c4e3f3;
+            --soft-green: #a7d99f;
+            --cream-bg: #fff8e8;
+            --light-bg: #f8fcfd;
+            --text-dark: #3a3a50;
+            --shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, var(--light-bg), var(--cream-bg));
+            color: var(--text-dark);
+        }
+
+        /* ====================== WRAPPER ====================== */
+        #gameWrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 100vw;
+            height: 100%;
+            max-height: 100vh;
+            border: 12px solid var(--accent-coral);
+            border-radius: 24px;
+            box-shadow: 0 0 50px rgba(255, 127, 80, 0.4);
+            overflow: hidden;
+            background: var(--soft-blue);
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        /* ====================== UI ELEMENTS ====================== */
+        .ui-element {
+            position: absolute;
+            z-index: 20;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        #ui {
+            top: 16px;
+            left: 16px;
+            color: var(--text-dark);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+            line-height: 2.0;
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid var(--accent-coral);
+        }
+
+        #soundToggle {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid var(--accent-coral);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--text-dark);
+            transition: all 0.2s;
+            z-index: 30;
+            font-size: 24px;
+        }
+
+        #soundToggle:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--text-dark);
+        }
+
+        #soundToggle.muted .sound-on {
+            display: none;
+        }
+
+        #soundToggle .sound-off {
+            display: none;
+        }
+
+        #soundToggle.muted .sound-off {
+            display: block;
+        }
+
+        /* ====================== DIALOGUE & HINT ====================== */
+        #dialogue,
+        #hint {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--cream-bg);
+            border: 4px solid var(--accent-coral);
+            border-radius: 18px;
+            padding: 14px 20px;
+            color: var(--text-dark);
+            font-family: 'Gaegu', cursive;
+            font-size: 16px;
+            line-height: 1.6;
+            text-align: center;
+            box-shadow: 0 4px 15px var(--shadow);
+            max-width: 90%;
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #hint {
+            top: 50%;
+            bottom: auto;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            padding: 16px 28px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ====================== MODALS ====================== */
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            max-width: 620px;
+            background: var(--light-bg);
+            border: 10px solid var(--accent-coral);
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 15px 40px var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: left;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 40;
+        }
+
+        .modal.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        .modal h2 {
+            font-family: 'Gaegu', cursive;
+            color: var(--accent-coral);
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 0 #ffe0d4;
+        }
+
+        .modal .letter-content {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 18px;
+            line-height: 1.8;
+            white-space: pre-line;
+            margin-bottom: 24px;
+            padding: 10px;
+            border-left: 3px solid var(--soft-blue);
+        }
+
+        .btn {
+            display: block;
+            width: 80%;
+            max-width: 280px;
+            margin: 20px auto 0;
+            padding: 14px 20px;
+            font-family: 'Gaegu', cursive;
+            font-weight: bold;
+            font-size: 20px;
+            background: var(--accent-coral);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--text-dark);
+            transition: all 0.2s;
+        }
+
+        .btn:hover,
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 var(--text-dark);
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 var(--text-dark);
+        }
+
+        /* ====================== SCREENS ====================== */
+        #startScreen,
+        #endScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            transition: opacity 0.5s ease;
+            z-index: 50;
+        }
+
+        h1 {
+            font-family: 'Gaegu', cursive;
+            font-size: 48px;
+            color: var(--accent-coral);
+            margin-bottom: 16px;
+            text-shadow: 3px 3px 0 #ffe0d4;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .instruction {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin: 10px 0;
+            font-weight: 600;
+        }
+
+        .message {
+            font-family: 'Gaegu', cursive;
+            font-size: 22px;
+            color: var(--text-dark);
+            line-height: 1.5;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        /* ====================== JOYSTICK ====================== */
+        #joystickContainer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 130px;
+            height: 130px;
+            display: none;
+            z-index: 35;
+            filter: drop-shadow(0 4px 8px var(--shadow));
+        }
+
+        #joystickBase {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            /* Lighter base */
+            border-radius: 50%;
+            border: 4px solid var(--accent-coral);
+            position: relative;
+        }
+
+        #joystickKnob {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            background: var(--accent-coral);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 0 var(--text-dark), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.05s ease;
+        }
+
+        /* ====================== RESPONSIVE ====================== */
+        @media (max-width: 480px) {
+            #ui {
+                font-size: 9px;
+                top: 10px;
+                left: 10px;
+            }
+
+            #soundToggle {
+                width: 40px;
+                height: 40px;
+                top: 10px;
+                right: 10px;
+            }
+
+            #dialogue,
+            #hint {
+                font-size: 14px;
+                padding: 12px 16px;
+            }
+
+            .modal {
+                padding: 20px;
+            }
+
+            .modal h2 {
+                font-size: 26px;
+            }
+
+            .modal .letter-content {
+                font-size: 16px;
+            }
+
+            .btn {
+                font-size: 18px;
+                padding: 12px;
+            }
+
+            #joystickContainer {
+                width: 100px;
+                height: 100px;
+                bottom: 16px;
+                left: 16px;
+            }
+
+            #joystickKnob {
+                width: 40px;
+                height: 40px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="soundToggle" class="ui-element" onclick="toggleSound()" aria-label="Toggle Sound">
+        <span class="sound-on">🎶</span>
+        <span class="sound-off">🔇</span>
+    </div>
+
+    <div id="joystickContainer">
+        <div id="joystickBase"></div>
+        <div id="joystickKnob"></div>
+    </div>
+
+    <div id="gameWrapper">
+        <div id="gameContainer">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div id="ui" class="ui-element">
+            <div>CHARACTER: <span id="chapter">SOPHIA</span></div>
+            <div style="color:var(--accent-coral)">LETTERS FOUND: <span id="letterCount">0</span>/5</div>
+        </div>
+
+        <div id="dialogue" class="ui-element"></div>
+        <div id="hint" class="ui-element"></div>
+
+        <div id="letterModal" class="modal">
+            <h2 id="letterTitle"></h2>
+            <div class="letter-content" id="letterContent"></div>
+            <button class="btn" onclick="closeLetterModal()">Close & Keep Safe 🗝️</button>
+        </div>
+
+        <div id="startScreen">
+            <h1>Letters from Adam 💌</h1>
+            <div class="message">
+                Halo, Sopipiaw! Ngahaha <br>
+                Adam punya 5 surat untuk kamu <br>
+                Ayo cari? 🗺️
+            </div>
+            <button class="btn" onclick="startGame()">Lessgooow</button>
+        </div>
+
+        <div id="endScreen" style="display:none">
+            <h1>Selesai! 🎉</h1>
+            <div class="message" id="finalMessage"></div>
+            <button class="btn" onclick="location.reload()">Main lagi</button>
+        </div>
+    </div>
+
+    <script>
+        // ====================== CANVAS SETUP ======================
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const LOGICAL = { w: 800, h: 600 };
+        let scaleX = 1, scaleY = 1;
+
+        function resize() {
+            const wrapper = document.getElementById('gameWrapper').getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = Math.round(wrapper.width * dpr);
+            canvas.height = Math.round(wrapper.height * dpr);
+            canvas.style.width = wrapper.width + 'px';
+            canvas.style.height = wrapper.height + 'px';
+
+            scaleX = canvas.width / LOGICAL.w;
+            scaleY = canvas.height / LOGICAL.h;
+
+            ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // ====================== AUDIO SYSTEM ======================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+        let soundEnabled = true;
+        const coralColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-coral').trim();
+
+        function play(freq, duration = 0.1, type = 'sine', vol = 0.3) {
+            if (!soundEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').classList.toggle('muted');
+            play(soundEnabled ? 800 : 200, 0.1, 'square', 0.2);
+        }
+
+        let bgmInterval;
+        function startBGM() {
+            if (!soundEnabled) return;
+            const notes = [440, 554, 659, 880]; // A4, C#5, E5, A5
+            let i = 0;
+            bgmInterval = setInterval(() => {
+                if (!gameState.running) { clearInterval(bgmInterval); return; }
+                play(notes[i % notes.length], 0.4, 'triangle', 0.15);
+                i++;
+            }, 800);
+        }
+
+        // ====================== GAME STATE ======================
+        const gameState = { running: false, lettersCollected: 0, totalLetters: 5, timeStart: 0, showDialogue: false };
+        const player = { x: 100, y: 450, w: 40, h: 50, vx: 0, vy: 0, speed: 4.5, facing: 1, blush: 0, walkCycle: 0 };
+        const keys = {};
+        const letters = [], scenery = [], npcs = [], particles = [];
+
+        const letterMessages = [
+
+            {
+                title: "Awal Cerita Kita",
+                content: "Hai Sop,\n\nMasih inget ga waktu awal kita mulai ngobrol? Aku ga nyangka bakal seseneng ini cuma gara-gara chat random. Dari yang awalnya basa-basi doang, tiba-tiba kamu jadi my favorite person. 😆😜"
+            },
+            {
+                title: "Gombal Dikit",
+                content: "WiFi suka disconnect, tapi kamu ga bisa aku disconnect dari pikiran. Ahayyy 😏📶"
+            },
+            {
+                title: "Maaf",
+                content: "I'm not always the best at expressing how I feel. Kadang canggung, kadang aku salah ngomong. And sometimes I just... forget to say anything at all.\n\nMaaf aku sering ilang-ilangan. That doesn't mean I don't think about you. Aku tidak pernah lupa kamu dan aku akan selalu kembali. ❤️"
+            },
+            {
+                title: "Random",
+                content: "Aku kira kamu polos, ternyata ahh lumayan mantavv ugha. 🤭 Tapi serius, kenapa kamu gemesin kali? 😅"
+            },
+            {
+                title: "Terima Kasih",
+                content: "Thanks udah sabar sama aku, yang sering ilang ilangan, kadang aneh, kadang absurd, kadang ngelucu di waktu yang mungkin tidak tepat. 🙏"
+            }
+
+        ];
+
+        // ====================== INIT WORLD & UTILS ======================
+        function initWorld() {
+            letters.length = scenery.length = npcs.length = 0;
+            player.x = 100; player.y = 450;
+            gameState.lettersCollected = 0;
+            document.getElementById('letterCount').textContent = '0';
+
+            const pos = [
+                { x: 180, y: 460 }, { x: 460, y: 360 }, { x: 720, y: 460 },
+                { x: 300, y: 260 }, { x: 620, y: 300 }
+            ];
+            pos.forEach((p, i) => letters.push({ ...p, collected: false, pulse: Math.random() * Math.PI * 2, sparkles: [], message: letterMessages[i] }));
+
+            const items = [
+                { t: 'tree', x: 100, y: 380 }, { t: 'tree', x: 700, y: 420 }, { t: 'bush', x: 520, y: 500 },
+                { t: 'flower', x: 180, y: 510 }, { t: 'flower', x: 500, y: 510 }, { t: 'flower', x: 620, y: 510 },
+                { t: 'bench', x: 360, y: 490 }, { t: 'rock', x: 150, y: 515 },
+                { t: 'tree', x: 400, y: 280 }
+            ];
+            scenery.push(...items);
+
+            // NPCs
+            npcs.push(
+                { t: 'butterfly', x: 250, y: 150, vx: 1.2, phase: 0 },
+                { t: 'bird', x: 100, y: 120, vx: 2.5, origY: 120 },
+            );
+        }
+
+        function showHint(text, duration = 3000) {
+            if (gameState.showDialogue) return;
+            const el = document.getElementById('hint');
+            el.textContent = text;
+            el.style.opacity = '1';
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.style.opacity = '0', duration);
+        }
+
+        function roundRect(x, y, w, h, r, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // ====================== PLAYER ======================
+        function drawPlayer() {
+            const { x, y, w, h, facing, blush, walkCycle } = player;
+            ctx.save();
+            ctx.translate(x + w / 2, y + h / 2 + Math.sin(walkCycle) * 3);
+
+            // Body (light blue shirt/dress)
+            roundRect(-w / 2, -h / 2, w, h, 16, '#e0f7ff');
+
+            // Hair/Hat (brown for neutral/cute)
+            roundRect(-w / 2 - 5, -h / 2 - 25, w + 10, 30, 10, '#8b4513');
+
+            // Face
+            roundRect(-w / 2 + 8, -h / 2 + 10, w - 16, 25, 10, '#fff');
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-8 * facing, -5, 3.5, 0, Math.PI * 2);
+            ctx.arc(8 * facing, -5, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Blush (a softer pink)
+            if (blush > 0) {
+                ctx.fillStyle = `rgba(255, 127, 80, ${blush})`; /* Using coral for blush */
+                ctx.beginPath();
+                ctx.arc(-12 * facing, 0, 7, 0, Math.PI * 2);
+                ctx.arc(12 * facing, 0, 7, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Mouth (simple)
+            ctx.strokeStyle = coralColor;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(0, 6, 7, 0.15, Math.PI - 0.15);
+            ctx.stroke();
+
+            // Arms (slightly different swing for a more dynamic walk)
+            const swing = Math.sin(walkCycle) * 8;
+            roundRect(-w / 2 + 3, 4 + swing, 10, 10, 5, '#e0f7ff');
+            roundRect(w / 2 - 13, 4 - swing, 10, 10, 5, '#e0f7ff');
+
+            ctx.restore();
+        }
+
+        // ====================== LETTER & HEART DRAWING ======================
+        function drawLetter(letter) {
+            if (letter.collected) return;
+
+            const { x, y, pulse, sparkles } = letter;
+            const scale = 1 + Math.sin(pulse) * 0.12;
+
+            // Sparkles logic (kept for visual flair)
+            if (Math.random() < 0.12) sparkles.push({ x: x + (Math.random() - 0.5) * 50, y: y + (Math.random() - 0.5) * 50, life: 1, size: Math.random() * 3 + 2 });
+            sparkles.forEach((s, i) => {
+                s.life -= 0.02;
+                if (s.life <= 0) { sparkles.splice(i, 1); return; }
+                ctx.save();
+                ctx.globalAlpha = s.life;
+                ctx.fillStyle = 'yellow';
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Glow (using coral)
+            ctx.shadowColor = coralColor;
+            ctx.shadowBlur = 20;
+
+            // Envelope
+            roundRect(-22, -16, 44, 32, 4, '#fff9e6');
+            ctx.strokeStyle = coralColor;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Flap (light coral)
+            ctx.beginPath();
+            ctx.moveTo(-22, -16);
+            ctx.lineTo(0, -2);
+            ctx.lineTo(22, -16);
+            ctx.closePath();
+            ctx.fillStyle = '#ffc0a8';
+            ctx.fill();
+            ctx.stroke();
+
+            // Heart Seal
+            drawHeart(0, 1, 10, coralColor);
+
+            ctx.restore();
+            letter.pulse += 0.06;
+        }
+
+        function drawHeart(x, y, size, color) {
+            ctx.fillStyle = color;
+            ctx.save();
+            ctx.translate(x, y);
+            const s = size / 2;
+            ctx.beginPath();
+            ctx.moveTo(0, s / 2);
+            ctx.bezierCurveTo(0, 0, -s, -s / 2, -s, s / 2);
+            ctx.bezierCurveTo(-s, s, 0, s * 1.5, 0, s * 2);
+            ctx.bezierCurveTo(0, s * 1.5, s, s, s, s / 2);
+            ctx.bezierCurveTo(s, -s / 2, 0, 0, 0, s / 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ====================== GAME LOGIC & TRANSITIONS ======================
+        function update() {
+            player.vx = player.vy = 0;
+            if (keys.ArrowLeft) player.vx = -player.speed;
+            if (keys.ArrowRight) player.vx = player.speed;
+            if (keys.ArrowUp) player.vy = -player.speed * 0.7;
+            if (keys.ArrowDown) player.vy = player.speed * 0.7;
+
+            if (player.vx && player.vy) { player.vx *= 0.707; player.vy *= 0.707; }
+            if (player.vx) player.facing = Math.sign(player.vx);
+            if (player.vx || player.vy) player.walkCycle += 0.25;
+
+            // Clamp player position
+            player.x = Math.max(0, Math.min(LOGICAL.w - player.w, player.x + player.vx));
+            player.y = Math.max(10, Math.min(LOGICAL.h - player.h, player.y + player.vy));
+
+            // Letter proximity & interaction
+            let canInteract = false;
+            letters.forEach(l => {
+                if (l.collected) return;
+                const dx = player.x + player.w / 2 - l.x;
+                const dy = player.y + player.h / 2 - l.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < 70) {
+                    canInteract = true;
+                    if (!l.near) { showHint("SPACE atau TAP untuk buka surat yaa 💌"); l.near = true; }
+                    if (keys[' '] && !l.opening && !gameState.showDialogue) {
+                        l.opening = true;
+                        keys[' '] = false; // Consume the key press
+                        collectLetter(l);
+                    }
+                } else l.near = false;
+            });
+
+            // Joystick/Tap controls on mobile
+            if ('ontouchstart' in window && canInteract && !gameState.showDialogue) {
+                // The tap logic is handled in the canvas touchstart listener
+                // but the hint is still visible if near
+            }
+
+            // Blush decay
+            if (player.blush > 0) player.blush = Math.max(0, player.blush - 0.02);
+
+            updateNPCs();
+        }
+
+        function collectLetter(letter) {
+            letter.collected = true;
+            gameState.lettersCollected++;
+            gameState.showDialogue = true; // Block hints/movement
+            document.getElementById('letterCount').textContent = gameState.lettersCollected;
+            createHearts(letter.x, letter.y);
+            player.blush = 1;
+
+            const modal = document.getElementById('letterModal');
+            document.getElementById('letterTitle').textContent = letter.message.title;
+            document.getElementById('letterContent').textContent = letter.message.content;
+            modal.classList.add('active');
+
+            if (gameState.lettersCollected === gameState.totalLetters) {
+                setTimeout(showEnding, 1000); // Delayed end to allow heart particles to disperse
+            }
+        }
+
+        function collectLetter(letter) {
+            letter.collected = true;
+            gameState.lettersCollected++;
+            gameState.showDialogue = true; // Block hints/movement
+            document.getElementById('letterCount').textContent = gameState.lettersCollected;
+            createHearts(letter.x, letter.y);
+            player.blush = 1;
+
+            const modal = document.getElementById('letterModal');
+            document.getElementById('letterTitle').textContent = letter.message.title;
+            document.getElementById('letterContent').textContent = letter.message.content;
+            modal.classList.add('active');
+
+            if (gameState.lettersCollected === gameState.totalLetters) {
+                gameState.isGameFinished = true; // Flag the game as ready to end
+            }
+        }
+
+        function closeLetterModal() {
+            document.getElementById('letterModal').classList.remove('active');
+            gameState.showDialogue = false;
+            play(660, 0.15, 'sine');
+            if (gameState.isGameFinished) {
+                setTimeout(showEnding, 1000);
+            }
+        }
+
+        function showEnding() {
+            gameState.running = false;
+            document.getElementById('finalMessage').innerHTML = `
+                <p style="font-size:20px; margin:20px 0; line-height:1.6;">
+                Maaf kalau cringe dan alay hehe.<br>
+                I just wanted to make something special for you and put a smile on your face. And every word I wrote is true.<br>
+                </p>
+                <p style="font-size:24px; margin:20px 0; color:var(--accent-coral);">
+                Love you. ❤️</p>
+                <p style="margin-top:16px; font-size:18px;">- Yours, Adam</p>
+            `;
+            document.getElementById('endScreen').style.display = 'flex';
+
+            // Confetti effect (using hearts)
+            for (let i = 0; i < 150; i++) {
+                setTimeout(() => {
+                    particles.push({
+                        x: Math.random() * LOGICAL.w,
+                        y: -30,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: Math.random() * 8 + 4,
+                        life: 1, decay: 0.008,
+                        size: Math.random() * 16 + 10
+                    });
+                }, i * 15);
+            }
+        }
+
+        // ====================== DRAWING FUNCTIONS ======================
+        function draw() {
+            // Sky & Gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, LOGICAL.h);
+            grad.addColorStop(0, '#c4e3f3'); /* soft-blue */
+            grad.addColorStop(0.6, '#e2f4ff');
+            grad.addColorStop(1, '#a7d99f'); /* soft-green */
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, LOGICAL.w, LOGICAL.h);
+
+            // Clouds (simplified and lighter)
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            for (let i = 0; i < 5; i++) {
+                const x = (Date.now() / 150 + i * 200) % (LOGICAL.w + 200) - 100;
+                roundRect(x, 60 + i * 60, 100, 35, 18, ctx.fillStyle);
+                roundRect(x + 20, 50 + i * 60, 55, 30, 15, ctx.fillStyle);
+            }
+
+            // Ground
+            ctx.fillStyle = '#a7d99f'; /* soft-green */
+            ctx.fillRect(0, 530, LOGICAL.w, 70);
+
+            // Scenery behind
+            scenery.filter(s => s.y < player.y + player.h).forEach(drawScenery);
+
+            // NPCs (butterflies and birds)
+            npcs.forEach(drawNPC);
+
+            // Letters
+            letters.forEach(drawLetter);
+
+            // Player
+            drawPlayer();
+
+            // Scenery in front
+            scenery.filter(s => s.y >= player.y + player.h).forEach(drawScenery);
+
+            // Particles
+            drawParticles();
+        }
+
+        function gameLoop() {
+            if (!gameState.running) return;
+            if (!gameState.showDialogue) {
+                update();
+            }
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('startScreen').style.display = 'none';
+                gameState.running = true;
+                gameState.timeStart = Date.now();
+                initWorld();
+                startBGM();
+                showHint("Find all 5 letters! 💌", 3500);
+                gameLoop();
+            }, 500);
+        }
+
+        // ====================== INPUT HANDLERS ======================
+        window.addEventListener('keydown', e => {
+            if (gameState.running && !gameState.showDialogue) keys[e.key] = true;
+            if (e.key === ' ') e.preventDefault(); // Prevent space from scrolling
+        });
+        window.addEventListener('keyup', e => {
+            if (e.key in keys) keys[e.key] = false;
+        });
+
+        // Joystick
+        const joystick = {
+            active: false, centerX: 0, centerY: 0,
+            init() {
+                const container = document.getElementById('joystickContainer');
+                const knob = document.getElementById('joystickKnob');
+                if ('ontouchstart' in window) container.style.display = 'block';
+
+                const start = e => {
+                    e.preventDefault();
+                    this.active = true;
+                    const rect = container.getBoundingClientRect();
+                    this.centerX = rect.left + rect.width / 2;
+                    this.centerY = rect.top + rect.height / 2;
+                };
+                const move = e => {
+                    if (!this.active || gameState.showDialogue) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const dx = touch.clientX - this.centerX;
+                    const dy = touch.clientY - this.centerY;
+                    const dist = Math.min(65, Math.hypot(dx, dy));
+                    const angle = Math.atan2(dy, dx);
+                    const kx = dist * Math.cos(angle);
+                    const ky = dist * Math.sin(angle);
+                    knob.style.transform = `translate(${kx}px, ${ky}px)`;
+
+                    keys.ArrowLeft = kx < -15;
+                    keys.ArrowRight = kx > 15;
+                    keys.ArrowUp = ky < -15;
+                    keys.ArrowDown = ky > 15;
+                };
+                const end = () => {
+                    this.active = false;
+                    knob.style.transform = 'translate(-50%,-50%)'; /* Reset Knob */
+                    keys.ArrowLeft = keys.ArrowRight = keys.ArrowUp = keys.ArrowDown = false;
+                };
+
+                container.addEventListener('touchstart', start);
+                container.addEventListener('touchmove', move);
+                container.addEventListener('touchend', end);
+                container.addEventListener('touchcancel', end);
+            }
+        };
+        joystick.init();
+
+        // Tap to collect (for mobile devices)
+        canvas.addEventListener('touchstart', e => {
+            if (e.touches.length !== 1 || gameState.showDialogue) return;
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            // Convert screen coordinates to game logical coordinates
+            const tx = (touch.clientX - rect.left) * LOGICAL.w / rect.width;
+            const ty = (touch.clientY - rect.top) * LOGICAL.h / rect.height;
+
+            letters.forEach(l => {
+                if (l.collected || l.opening) return;
+                // Check if tap is near the letter AND player is near the letter
+                const distLetter = Math.hypot(tx - l.x, ty - l.y);
+                const distPlayer = Math.hypot(player.x + player.w / 2 - l.x, player.y + player.h / 2 - l.y);
+                if (distLetter < 40 && distPlayer < 80) { // Tap radius 40, Player proximity 80
+                    collectLetter(l);
+                }
+            });
+        });
+
+        // ====================== PARTICLES & NPC DRAW ======================
+        function createHearts(x, y, count = 15) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: Math.random() * -7 - 2,
+                    life: 1, decay: 0.012,
+                    size: Math.random() * 14 + 10
+                });
+            }
+            play(880, 0.4, 'sine', 0.4);
+        }
+
+        function updateNPCs() {
+            npcs.forEach(npc => {
+                if (npc.t === 'butterfly') {
+                    npc.phase += 0.08;
+                    npc.x += npc.vx * 0.5;
+                    npc.y += Math.sin(npc.phase) * 0.9;
+                    if (npc.x < 60 || npc.x > 740) npc.vx *= -1;
+                } else if (npc.t === 'bird') {
+                    npc.x += npc.vx;
+                    if (npc.x < -60 || npc.x > 860) npc.x = npc.vx > 0 ? -60 : 860;
+                }
+            });
+        }
+
+        function drawParticles() {
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy; p.vy += 0.25;
+                p.life -= p.decay;
+                if (p.life <= 0) { particles.splice(i, 1); return; }
+                drawHeart(p.x, p.y, p.size, `rgba(255, 127, 80, ${p.life})`); /* Coral hearts */
+            });
+        }
+
+        function drawNPC(npc) {
+            ctx.save();
+            if (npc.t === 'butterfly') {
+                ctx.translate(npc.x, npc.y + Math.sin(npc.phase) * 3);
+                const flap = Math.abs(Math.sin(npc.phase * 5)) * 0.4 + 0.6;
+                ctx.fillStyle = '#ffc0a8'; /* Light coral wings */
+                [-1, 1].forEach(side => {
+                    ctx.save();
+                    ctx.scale(flap * side, 1);
+                    ctx.beginPath(); ctx.arc(side * 10, 0, 12, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = coralColor;
+                    ctx.beginPath(); ctx.arc(side * 10, 6, 7, 0, Math.PI * 2); ctx.fill();
+                    ctx.restore();
+                });
+                ctx.fillStyle = '#000'; ctx.fillRect(-1.5, -6, 3, 16);
+            } else if (npc.t === 'bird') {
+                ctx.translate(npc.x, npc.origY + Math.sin(Date.now() / 300) * 12);
+                if (npc.vx < 0) ctx.scale(-1, 1);
+                ctx.fillStyle = '#6ca6cd'; /* Blue bird */
+                ctx.beginPath(); ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#87CEEB'; ctx.save(); ctx.rotate(Math.sin(Date.now() / 120) * 0.6); ctx.beginPath(); ctx.ellipse(-6, -2, 11, 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                ctx.fillStyle = '#6ca6cd'; ctx.beginPath(); ctx.arc(9, -2, 7, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(11, -2, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(14, -2); ctx.lineTo(19, -2); ctx.lineTo(16, 1); ctx.closePath(); ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function drawScenery(item) {
+            ctx.save();
+            const { t, x, y } = item;
+            if (t === 'tree') {
+                ctx.fillStyle = '#a0522d'; ctx.fillRect(x - 12, y, 24, 65);
+                ['#38761d', '#549c3e', '#79b860'].forEach((c, i) => {
+                    ctx.fillStyle = c;
+                    ctx.beginPath();
+                    ctx.arc(x + (i - 1) * 20, y - 10 + i * 10, 28 - i * 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            } else if (t === 'bush') {
+                ctx.fillStyle = '#38761d';
+                [x - 20, x, x + 20].forEach((cx, i) => {
+                    ctx.beginPath();
+                    ctx.arc(cx, y + i * 5, 20 - i * 2, 0, Math.PI, true);
+                    ctx.fill();
+                });
+            } else if (t === 'flower') {
+                ctx.strokeStyle = '#38761d'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 22); ctx.stroke();
+                const colors = ['#87CEEB', coralColor, '#FFD700']; /* Blue, Coral, Yellow */
+                ctx.fillStyle = colors[Math.floor(x / 100) % 3];
+                for (let i = 0; i < 6; i++) {
+                    const a = Math.PI * 2 / 6 * i;
+                    ctx.beginPath(); ctx.arc(x + Math.cos(a) * 9, y + Math.sin(a) * 9, 5, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+            } else if (t === 'bench') {
+                ctx.fillStyle = '#a0522d';
+                ctx.fillRect(x, y, 84, 10);
+                ctx.fillRect(x + 6, y + 10, 10, 22); ctx.fillRect(x + 68, y + 10, 10, 22);
+                ctx.fillRect(x, y - 28, 84, 10);
+                ctx.fillRect(x + 6, y - 28, 10, 30); ctx.fillRect(x + 68, y - 28, 10, 30);
+            } else if (t === 'rock') {
+                ctx.fillStyle = '#a9a9a9'; ctx.beginPath(); ctx.ellipse(x, y, 18, 12, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#808080'; ctx.beginPath(); ctx.ellipse(x - 3, y - 2, 12, 9, 0, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.restore();
+        }
+    </script>
+</body>
+
+</html>
