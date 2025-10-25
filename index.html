@@ -432,8 +432,7 @@
             <h1>Letters from Adam 💌</h1>
             <div class="message">
                 Halo, Sopipiaw! Ngahaha <br>
-                Adam punya beberapa surat untuk kamu <br>
-                Ayo cari? 🗺️
+                Adam punya beberapa surat untuk kamu. Ayo cari? 🗺️
             </div>
             <button class="btn" onclick="startGame()">Lessgooow</button>
         </div>
@@ -783,24 +782,6 @@
             if (player.blush > 0) player.blush = Math.max(0, player.blush - 0.02);
 
             updateNPCs();
-        }
-
-        function collectLetter(letter) {
-            letter.collected = true;
-            gameState.lettersCollected++;
-            gameState.showDialogue = true; // Block hints/movement
-            document.getElementById('letterCount').textContent = gameState.lettersCollected;
-            createHearts(letter.x, letter.y);
-            player.blush = 1;
-
-            const modal = document.getElementById('letterModal');
-            document.getElementById('letterTitle').textContent = letter.message.title;
-            document.getElementById('letterContent').textContent = letter.message.content;
-            modal.classList.add('active');
-
-            if (gameState.lettersCollected === gameState.totalLetters) {
-                setTimeout(showEnding, 1000); // Delayed end to allow heart particles to disperse
-            }
         }
 
         function collectLetter(letter) {
