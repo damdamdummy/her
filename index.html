@@ -17,10 +17,19 @@
             if (e.ctrlKey && (e.key === 'u' || e.key === 's')) e.preventDefault();
             if (e.ctrlKey && e.key === 'c') e.preventDefault();
         });
-        document.addEventListener('selectstart', e => e.preventDefault());
         document.addEventListener('dragstart', e => e.preventDefault());
     </script>
 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3Q4LE01KW"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-V3Q4LE01KW', {
+            anonymize_ip: false,
+            allow_ad_personalization_signals: false
+        });
+    </script>
     <script src="assets/style.js"></script>
 
 </head>
